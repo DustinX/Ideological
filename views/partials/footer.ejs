@@ -1,0 +1,37 @@
+    <!-- jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <!-- Custom JS -->
+    <script type="text/javascript" src="/js/app.js"></script>
+    <script type="text/javascript" src="/js/swiper.min.js"></script>
+    <script>
+       var swiper = new Swiper('.swiper-container', {
+           pagination: '.swiper-pagination',
+          //  prevButton: true,
+          //  nextButton: true,
+           slidesPerView: 3.5,
+           breakpoints: {
+             500: {
+               slidesPerView: 1.05
+             },
+             600: {
+               slidesPerView: 1.10
+             },
+             900: {
+               slidesPerView: 1.35
+             },
+
+             1000: {
+               slidesPerView: 2
+             },
+
+             1200: {
+               slidesPerView: 2.5
+             },
+             1400: {
+               slidesPerView: 3
+             }
+           }
+       });
+    </script>
+    </body>
+</html>

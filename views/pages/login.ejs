@@ -1,0 +1,33 @@
+<%  include ../partials/header     %>
+
+<div class="loginContainer">
+  <div class="loginCard">
+    <div class="loginCardHeader">
+        <h1>Log in</h1>
+    </div>
+
+      <form action="/login" method="post">
+        <div class="loginFormControl">
+          <input class="loginTB" type="text" name="username" placeholder="Username">
+        </div>
+
+        <div class="loginFormControl">
+            <input class="loginTB" type="password" name="password" placeholder="Password">
+        </div>
+
+        <div class="loginFormControl">
+          <button class="loginBtn">Log in</button>
+        </div>
+      </form>
+
+      <hr class="loginFormDivider">
+
+      <div class="loginFormControl">
+        <a href="/register" class="registerlink">New to Ideological? Register</a>
+      </div>
+
+  </div>
+</div>
+
+
+<%  include ../partials/footer     %>

@@ -1,0 +1,169 @@
+<%   include ../partials/header    %>
+
+<div class="trending">
+  <div>
+    <h1 class="trendingHeading">Week's Noteworthy</h1>
+  </div>
+     <div class="swiper-container">
+         <div class="swiper-wrapper">
+            <% topArticles.forEach(function(article){ %>
+
+               <div class="swiper-slide">
+                 <div class="trendingNewsCard">
+                   <div class="trendingImageContainer">
+                       <img src="<%= article.source %>" alt="" class="trendingImage">
+                   </div>
+
+                   <div class="trendingArticleDetailsContainer">
+                     <h3><%= article.title %></h3>
+                     <h5><%= article.description %></h5>
+                   </div>
+
+                   <hr class="trendingCardDivider">
+                   <div class="truthyness">
+                     <div class="feedBackText">
+                       <h5 class="bolded">Validity:</h5>
+                       <div class="averageFeedBackVal">
+                         <% if(Math.ceil(article.truthRating / article.totalFeedback) == 0) {%>
+                           Fake
+                         <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 1) {%>
+                             Poor
+                         <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 2) {%>
+                           Average
+                         <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 3) {%>
+                           Above Avg.
+                         <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 4) { %>
+                           Trustworthy
+                         <% } else { %>
+                             _
+                         <% } %>
+                       </div>
+                     </div>
+                   </div>
+
+                   <div class="bias">
+                     <div class="feedBackText">
+                       <h5 class="bolded">Bias:</h5>
+                       <div class="averageFeedBackVal">
+                         <%= article.biasRating %>
+                       </div>
+                     </div>
+                   </div>
+
+                   <span>
+                   </span>
+                 </div>
+               </div>
+
+           <%})%>
+         </div>
+     </div>
+</div>
+
+<div class="mainContainer">
+  <div class="feed">
+    <div>
+      <h1 class="todayHeading">Today's Articles</h1>
+    </div>
+    <% allData.forEach(function(article){ %>
+          <div class="newsCard">
+              <a href="<%= article.url %>">
+              <!-- <a href="javascript:void(0);"> -->
+                <div class="articleDataContainer" data-article-uri = "<%= article.url %>" data-article-id="<%= article._id %>">
+                  <div class="articleImageContainer">
+                    <% if(article.urlToImage == null) { %>
+                      <img src="http://i.imgur.com/ytQK5qd.png" alt="" class="articleImage">
+                    <% } else { %>
+                      <img src="<%= article.urlToImage %>" alt="" class="articleImage">
+                    <%  } %>
+                  </div>
+
+                  <div class="articleDetailsContainer">
+                    <h3><%= article.title %></h3>
+                    <p><%= article.description %></p>
+                  </div>
+                </div>
+              </a>
+
+              <div class="feedback">
+                  <div class="truthyness">
+                    <div class="feedBackText">
+                      <h5 class="bolded">Validity:</h5>
+                      <div class="averageFeedBackVal">
+                        <% if(Math.ceil(article.truthRating / article.totalFeedback) == 0) {%>
+                          Fake
+                        <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 1) {%>
+                            Poor
+                        <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 2) {%>
+                          Average
+                        <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 3) {%>
+                          Above Avg.
+                        <% } else if(Math.ceil(article.truthRating / article.totalFeedback) == 4) { %>
+                          Trustworthy
+                        <% } else { %>
+                            _
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="bias">
+                    <div class="feedBackText">
+                      <h5 class="bolded">Bias:</h5>
+                      <div class="averageFeedBackVal">
+                        <%= article.biasRating %>
+                      </div>
+                    </div>
+                  </div>
+
+              <div class="rateBtnContainer">
+                      <a type="button" class="rateBtn" id="rateFormBtn"  data-article-id="<%= article._id %>" data-article-title="<%= article.title %>" data-totalfb="<%= article.totalFeedback %>" data-truthr="<%= article.truthRating %>" data-biasr="<%= article.biasRatingArr %>" onclick="">Rate Article</a><span class="feedbackCount"><%= article.totalFeedback %></span>
+                  </div>
+              </div>
+
+              <button class="expandFeedback">
+                <span><i class="fa fa-angle-down" aria-hidden="true"></i></span>
+              </button>
+          </div>
+    <%})%>
+  </div>
+</div>
+
+<div class="ratingModal" id="ratingForm">
+  <div class="modalContent">
+      <div class="closeModalBtn" id="ratingFormClose" onclick="closeRatingModal()">&times</div>
+    <div class="modalHeader">
+      <h3 class="modalShowTitle" id="modalReviewTitle"></h3>
+    </div>
+
+    <form id="rateArticleForm" action="" method="post">
+        <div class="rateFormSection">
+          <h4 class="rateSectionHeading">Validity</h4>
+          <p class="rateFormSectDescription">In your opinion, how "truthful" was the article? While it may seem difficult to judge, there are a some signs you can look out for while reading. For example, does the article cite any resources? If so, how trustworhty are those sources? </p>
+
+          <select id="truthySelector" name="validity">
+              <option value="0">Fake</option>
+              <option value="1">Poor</option>
+              <option value="2">Average</option>
+              <option value="3">Above Average</option>
+              <option value="4">Trusworthy</option>
+            </select>
+        </div>
+
+        <div class="rateFormSection">
+          <h4 class="rateSectionHeading">Bias</h4>
+          <p class="rateFormSectDescription">Almost all articles contains some implicit bias. In fact, there is a widely accepted notion that certain news networks tend lean one way or another. What kind of bias does the article employ? Of course, if the article is not politically motivated it is quite possible that it has no bias.</p>
+
+           <select id="biasSelector" name="bias">
+             <option value="0">None/Not Applicable</option>
+             <option value="1">Liberal</option>
+             <option value="2">Conservative</option>
+           </select>
+        </div>
+
+        <button type="submit" id="reviewSubBtn">Submit</button>
+    </form>
+  </div>
+</div>
+
+<%    include ../partials/footer      %>

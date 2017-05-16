@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ideological</title>
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
+    <link rel="stylesheet" href="stylesheets/app.css">
+    <link rel="stylesheet" href="stylesheets/swiper.min.css">
+  </head>
+  <body>
+    <nav id="ideologyTopNav" class="topNav">
+      <a href="/" class="logo">ideological</a>
+
+      <ul>
+        <%  if(!currentUser) { %>
+          <li><a href="/login">Log in</a></li>
+          <li><a href="/register">Sign Up</a></li>
+        <% } else { %>
+          <li><a>Welcome, <%= currentUser.username %></a></li>
+          <li><a href="/logout">Log out</a></li>
+        <% } %>
+        <li><span><a href="javascript:void(0);" class="icon" onClick="openSideNav()">&#9776;</a></span></li>
+      </ul>
+    </nav>
+
+    <div class="sideNav" id="mobileSideNav">
+        <span><a href="javascript:void(0);" class="closeBtn" onclick="closeSideNav()">&times</a></span>
+        <a href="/" class="logo"><h1>ideological</h1></a>
+        <div class="sideNavLinkSpacing">
+          <%  if(!currentUser) { %>
+            <a href="/login">Log in</a>
+            <a href="/register">Sign Up</a>
+          <% } else { %>
+            <a href="/logout">Log out</a>
+          <% } %>
+        </div>
+    </div>
