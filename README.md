@@ -5,7 +5,7 @@ Ideological is a Node.js based application intended to fight against fake news. 
 Ideological leverages the "News API" to pull up to date news. These articles are available to be read by anyone, but one must become a user to rate the article's validity and bias. The hope is that by removing the network affiliation from the article, that people would be more willing to read articles that don't necesarily align with their political views as well as check their preconcieved notions at the door. 
 
 ## Goals
-Ideological at this moment relies on user's input to determine the "truthyness" of an article. This is simply the first step. The hope is that Ideologica will grow to become an AI that is able to not only validate an article, but caution users who are about to read unsubstantiated articles.
+Ideological at this moment relies on user's input to determine the "truthyness" of an article. This is simply the first step. The hope is that Ideologica will grow to become an AI that is able to not only validate an article, but caution users who are about to read unsubstantiated articles. Another feature, would be the addition of the "Presidential Pardon" page. Presidential Pardon would bring together any and all statement made specifically by the President. Then, the AI will determine to the best of it's knowledge the "truthyness" of that statement. 
 
 ## Images
 
