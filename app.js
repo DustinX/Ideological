@@ -286,14 +286,14 @@ app.post('/:id/read/', function(req, res){
       return console.log('Error', error.message || error);
     }
 
-    console.log('META INFO');
-    console.log(meta);
+    // console.log('META INFO');
+    // console.log(meta);
 
-    console.log('BODY');
+    // console.log('BODY');
     var bodyData = extractor(body.toString('utf-8'));
-    console.log(bodyData);
+    // console.log(bodyData.links);
 
-    res.send({body:bodyData.text, title: articleTitle});
+    res.send({body:bodyData.text, title: articleTitle, links:bodyData.links});
   });
 
 });

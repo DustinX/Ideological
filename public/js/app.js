@@ -87,10 +87,15 @@ $('.articleDataContainer').click(function() {
         var modaltitle = document.getElementById('modalViewTitle');
         var articleBody = document.getElementById('articleBody');
         var articleView = document.getElementById('articleView');
+        var links = "<h3>Sources: </h3>";
+
+        data.links.forEach(link => {
+          links += "<a href="+link.href+">"+link.href+"</a> <br>";
+        });
         modaltitle.textContent = data.title;
 
         articleView.style.display = "block";
-        articleBody.innerHTML = data.body;
+        articleBody.innerHTML = data.body + links;
     });
 });
 
