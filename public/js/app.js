@@ -84,8 +84,13 @@ $('.articleDataContainer').click(function() {
     //3) the result of that parse should be sent back to the front end so that we can show it to the user in a modal of some sort
     var data = {articleURL: url, articleID: articleId};
     $.post('/'+articleId+'/read', data, function(data) {
-        $('#articleView').addClass('show');
-        $('#articleBody').html(data.body);
+        var modaltitle = document.getElementById('modalViewTitle');
+        var articleBody = document.getElementById('articleBody');
+        var articleView = document.getElementById('articleView');
+        modaltitle.textContent = data.title;
+
+        articleView.style.display = "block";
+        articleBody.innerHTML = data.body;
     });
 });
 
