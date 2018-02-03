@@ -208,7 +208,6 @@ app.use(function(req, res, next){
 //                                                 ROUTES
 //*******************************************************************************************************
 app.get('/', function(req, res) {
-
 //now find the topArticles
 Article.find({showcase: "True"}, function(err, showcaseArticles) {
   if(err) {
@@ -267,10 +266,20 @@ app.post('/:id/read/', function(req, res){
   //get the article id
   var articleId = req.params.id;
   var articleURL = req.body.articleURL;
-  console.log(req.body.articleURL);
+  var articleTitle = "";
 
   //setup the fetch object
   const fetchURL = require('fetch').fetchUrl;
+
+  //get the article title and send back to the front end
+  Article.findById(articleId, function(err, foundArticle) {
+    if(err) {
+      console.log("Error finding the article with id: "+articleId);
+      console.log(err);
+    } else {
+      articleTitle = foundArticle.title;
+    }
+  })
 
   fetchURL(articleURL, (error, meta, body) => {
     if(error) {
@@ -284,7 +293,7 @@ app.post('/:id/read/', function(req, res){
     var bodyData = extractor(body.toString('utf-8'));
     console.log(bodyData);
 
-    res.send(bodyData);
+    res.send({body:bodyData.text, title: articleTitle});
   });
 
 });

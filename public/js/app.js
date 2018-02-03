@@ -31,12 +31,16 @@ var reviewBtns = document.querySelectorAll('#rateFormBtn');
 // Get the modal
 var ratingModal = document.getElementById('ratingForm');
 
-//Get the close btn
-var closeBtn = document.getElementById('ratingFormClose');
+//get the article modal
+var articleModal = document.getElementById('articleView');
 
 function closeRatingModal() {
   ratingModal.style.display = "none";
   history.pushState(null, null, "/");
+}
+
+function closeArticleViewModal() {
+  articleModal.style.display = "none";
 }
 
 
@@ -80,8 +84,8 @@ $('.articleDataContainer').click(function() {
     //3) the result of that parse should be sent back to the front end so that we can show it to the user in a modal of some sort
     var data = {articleURL: url, articleID: articleId};
     $.post('/'+articleId+'/read', data, function(data) {
-        
-        $('#articleBody').html(data);
+        $('#articleView').addClass('show');
+        $('#articleBody').html(data.body);
     });
 });
 
