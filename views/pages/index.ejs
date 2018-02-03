@@ -67,8 +67,7 @@
     </div>
     <% allData.forEach(function(article){ %>
           <div class="newsCard">
-              <a href="<%= article.url %>">
-              <!-- <a href="javascript:void(0);"> -->
+              <a href="javascript:void(0);">
                 <div class="articleDataContainer" data-article-uri = "<%= article.url %>" data-article-id="<%= article._id %>">
                   <div class="articleImageContainer">
                     <% if(article.urlToImage == null) { %>
@@ -163,6 +162,19 @@
 
         <button type="submit" id="reviewSubBtn">Submit</button>
     </form>
+  </div>
+</div>
+
+<div class="viewArticleModal" id="articleView">
+  <div class="modalContent">
+      <div class="closeModalBtn" id="articleViewClose" onclick="closeArticleViewModal()">&times</div>
+    <div class="modalHeader">
+      <h3 class="modalShowTitle" id="modalReviewTitle"></h3>
+    </div>
+
+    <div class="" id="articleBody">
+
+    </div>
   </div>
 </div>
 

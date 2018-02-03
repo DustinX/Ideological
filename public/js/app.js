@@ -72,32 +72,17 @@ $('.articleDataContainer').click(function() {
   //get the articleurl
   var url = this.dataset.articleUri;
   var articleId = this.dataset.articleId;
-
   //then send this url back to the server for processing
-  // $.ajax({
-  //   type: 'GET',
-  //   url: url,
-  //   dataType: 'html',
-  //   success: function(data){
-  //     $.ajax({
-  //       type: 'POST',
-  //       url: '/'+articleId+'/view',
-  //       data: {
-  //         html: data
-  //       },
-  //       success: function(data) {
-  //         console.log(data);
-  //       },
-  //       error: function(XMLHttpRequest, textStatus, errorThrown){
-  //           console.log(XMLHttpRequest, textStatus, errorThrown);
-  //       }
-  //     });
-  //   },
-  //   error: function(XMLHttpRequest, textStatus, errorThrown){
-  //     console.log(XMLHttpRequest, textStatus, errorThrown);
-  //   }
-  // });
-  // window.open(url);
+
+  //what we want to do is once we get the url for the article (above), we need to create an ajax request that hits a route that we define in app.js. This route will do the following:
+    //1) the route should take the url and do a fetch request. 
+    //2) the result of that fetch request should be parsed (eitehr with unfluff) or another parsing library
+    //3) the result of that parse should be sent back to the front end so that we can show it to the user in a modal of some sort
+    var data = {articleURL: url, articleID: articleId};
+    $.post('/'+articleId+'/read', data, function(data) {
+        
+        $('#articleBody').html(data);
+    });
 });
 
 

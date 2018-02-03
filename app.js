@@ -58,6 +58,60 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+
+// every('3s').do(function(){
+//   //find the articles that currently have showcase set to true
+//   Article.find({"showcase":"True"}, function(err, showcaseArticles) {
+//     if(err) {
+//       console.log("Error finding the showcase articles");
+//       console.log(err);
+//     } else {
+//       //check to see if showcaseArticles is not empty -> if so, continue to set new showcase articles. if not, set the showcase of the current articles to false then continue
+//       if(showcaseArticles.length != 0) {
+//         showcaseArticles.forEach(function(article){
+//           var articleId = article._id;
+//           Article.findByIdAndUpdate(articleId, {showcase: "False"}, function(err, updatedArticle){
+//             if(err) {
+//               console.log("Error updating the showcase field on the article with id: " + articleId);
+//               console.log(err);
+//             } //else do nothing
+//           })
+//         });
+//       }//ends if
+
+//       //now it's time to set random articles shwocase field as True
+//       Article.count().exec(function(err, count) {
+//         if(err) {
+//           console.log("Error finding the count of the articles in the MongoDB");
+//           console.log(err);
+//         } else {
+//           for(var i=0; i<7; i++) {
+//             //get a random number within the range
+//             var randomNum = Math.floor(Math.random() * count);
+            
+//             //find a random article
+//             Article.findOne().skip(randomNum).exec(function(err, randomArticle){
+//               if(err) {
+//                 console.log("Error finding random article");
+//                 console.log(err);
+//               } else {
+//                 //random article is found. set the showcase value to true
+//                 var articleId = randomArticle._id;
+//                 Article.findByIdAndUpdate(articleId, {showcase: "True"}, function(err, updatedRandomArticle){
+//                   if(err) {
+//                     console.log("Error setting the showcase field for the article with id: " + articleId);
+//                     console.log(err);
+//                   } // else do nothing
+//                 })
+//               }
+//             })
+//           }
+//         }
+//       }) 
+//     }
+//   })
+// });
+
 //Makes sure all routes are able to see currentUser object
   //this is done by putting the var currentUser inside of res.locals
 //again, this is a middleware, so we need to say next() in order for it to work correctly
@@ -70,12 +124,12 @@ app.use(function(req, res, next){
 //                                        SCHEDULED MONGODB LOAD
 //*******************************************************************************************************
 // every('5s').do(function(){
-//   var sourceNames = ['al-jazeera-english','associated-press','bbc-news','bloomberg','breitbart-news','business-insider','cnn','google-news','independent','techcrunch','the-huffington-post','the-verge','the-new-york-times','time','the-wall-street-journal'];
+//   var sourceNames = ['al-jazeera-english','associated-press','bbc-news','bloomberg','breitbart-news','business-insider','cnn','google-news','independent','techcrunch','the-huffington-post','the-verge','the-new-york-times','time','the-wall-street-journal','the-washington-post','national-geographic','daily-mail'];
 //   var apis = [];
 //   for (var i = 0; i < sourceNames.length; i++) {
 //     apis[i] = " https://newsapi.org/v1/articles?source="+sourceNames[i]+"&apiKey=14748e642d924db294e082aad37b715f"
 //   }
-//
+
 //   async.each(apis, function(api, callback){
 //     request(api, function(error, response, body){
 //       if(error) {
@@ -83,14 +137,14 @@ app.use(function(req, res, next){
 //       } else {
 //         var info = JSON.parse(body);
 //         var articleSource = info["source"];
-//
+
 //        info["articles"].forEach(function(article){
-//
+
 //             Article.find({"title": article.title}, function(err, foundArticle){
 //               if(err) {
 //                 console.log(err);
 //               }
-//
+
 //               if(foundArticle == null) {
 //                 console.log(article.title);
 //                 console.log("found");
@@ -108,7 +162,8 @@ app.use(function(req, res, next){
 //                 var biasRatingArr = [];
 //                 var biasRating = "_";
 //                 var totalFeedback = 0;
-//
+//                 var showcase = "False";
+
 //                 //Create an article object to be passed to the mongoose create api
 //                 var newArticle = {
 //                   author: author,
@@ -121,9 +176,10 @@ app.use(function(req, res, next){
 //                   truthRating: truthRating,
 //                   biasRatingArr: biasRatingArr,
 //                   biasRating: biasRating,
-//                   totalFeedback: totalFeedback
+//                   totalFeedback: totalFeedback,
+//                   showcase: showcase
 //                 }
-//
+
 //                 //Create the article
 //                 Article.create(newArticle, function(err, createdArticle){
 //                    if(err) {
@@ -135,7 +191,7 @@ app.use(function(req, res, next){
 //               }
 //             });
 //        });// ends forEach
-//
+
 //      }//ends else no error
 //    }); //ends request
 //  }); //ends async call
@@ -152,20 +208,24 @@ app.use(function(req, res, next){
 //                                                 ROUTES
 //*******************************************************************************************************
 app.get('/', function(req, res) {
-  Article.find({}, function(err, allArticles){
-    if(err) {
-      console.log("MongodB find return error: ");
-      console.log(err);
-    } else {
-      Article.find({}, function(err, topArticles){
-        if(err){
-          console.log(err);
-        } else {
-          res.render("pages/index", {allData: allArticles, topArticles: topArticles});
-        }
-      }).sort('-truthRating').limit(8);
-    }
-  });
+
+//now find the topArticles
+Article.find({showcase: "True"}, function(err, showcaseArticles) {
+  if(err) {
+    console.log("Error finding the showcaseArticles for the first load");
+    console.log(err);
+  } else {
+    Article.find({}, function(err, topArticles) {
+      if(err) {
+        console.log("Can't find top articles");
+        console.log(err);
+      } else {
+        res.render("pages/index", {allData: showcaseArticles,topArticles: topArticles});
+      }
+    }).sort('-truthrating').limit(8);
+  }
+})
+
 });
 
 app.get('/rate/:id', function(req, res){
@@ -201,22 +261,33 @@ app.put('/rate/:id', isLoggedIn, function(req, res){
      });
 });
 
-// app.post('/:id/view/', function(req, res){
-//   //get the url from the ajax request
-//   var articleHTML = req.body.url;
-//
-//   //then, use unfluff and get the text json
-//   var data = "";
-//   request(articleHTML ,function(error, response, body){
-//     if(error){
-//       console.log(error);
-//     } else {
-//       data = body;
-//     }
-//   });
-//   var unfluffedData = extractor(data);
-//   res.send(unfluffedData);
-// });
+
+//get the article html body and parse
+app.post('/:id/read/', function(req, res){
+  //get the article id
+  var articleId = req.params.id;
+  var articleURL = req.body.articleURL;
+  console.log(req.body.articleURL);
+
+  //setup the fetch object
+  const fetchURL = require('fetch').fetchUrl;
+
+  fetchURL(articleURL, (error, meta, body) => {
+    if(error) {
+      return console.log('Error', error.message || error);
+    }
+
+    console.log('META INFO');
+    console.log(meta);
+
+    console.log('BODY');
+    var bodyData = extractor(body.toString('utf-8'));
+    console.log(bodyData);
+
+    res.send(bodyData);
+  });
+
+});
 
 
 //Auth ROUTES
@@ -284,35 +355,35 @@ function isLoggedIn(req, res, next){
 
 function setSourceImage(source) {
   if(source == "al-jazeera-english"){
-    return 'https://icons.better-idea.org/icon?url=http://www.aljazeera.com&size=70..120..200';
+    return 'https://besticon-demo.herokuapp.com/icon?url=http://www.aljazeera.com&size=70..120..200';
   } else if(source == "associated-press") {
-    return "https://icons.better-idea.org/icon?url=https://apnews.com/&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=https://apnews.com/&size=70..120..200";
   } else if(source == "bbc-news") {
-    return "https://icons.better-idea.org/icon?url=http://www.bbc.co.uk/news&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.bbc.co.uk/news&size=70..120..200";
   } else if(source == "bloomberg") {
-    return "https://icons.better-idea.org/icon?url=http://www.bloomberg.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.bloomberg.com&size=70..120..200";
   } else if(source == "breitbart-news") {
-    return "https://icons.better-idea.org/icon?url=http://www.breitbart.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.breitbart.com&size=70..120..200";
   } else if(source == "business-insider") {
-    return "https://icons.better-idea.org/icon?url=http://www.businessinsider.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.businessinsider.com&size=70..120..200";
   } else if(source == "cnn") {
-    return "https://icons.better-idea.org/icon?url=http://us.cnn.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://us.cnn.com&size=70..120..200";
   } else if(source == "google-news") {
-    return "https://icons.better-idea.org/icon?url=https://news.google.co.uk&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=https://news.google.com&size=70..120..200";
   } else if(source == "independent") {
-    return "https://icons.better-idea.org/icon?url=http://www.independent.co.uk&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.independent.co.uk&size=70..120..200";
   } else if(source == "techcrunch") {
-    return "https://icons.better-idea.org/icon?url=https://techcrunch.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=https://techcrunch.cn&size=70..120..200";
   } else if(source == "the-huffington-post") {
-    return "https://icons.better-idea.org/icon?url=http://www.huffingtonpost.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.huffingtonpost.com&size=70..120..200";
   } else if(source == "the-verge") {
-    return "https://icons.better-idea.org/icon?url=http://www.theverge.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.theverge.com&size=70..120..200";
   } else if(source == "the-new-york-times") {
-    return "https://icons.better-idea.org/icon?url=http://www.nytimes.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.nytimes.com&size=70..120..200";
   } else if(source == "time") {
-    return "https://icons.better-idea.org/icon?url=http://time.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://time.com&size=70..120..200";
   } else if(source == "the-wall-street-journal"){
-    return "https://icons.better-idea.org/icon?url=http://www.wsj.com&size=70..120..200";
+    return "https://besticon-demo.herokuapp.com/icon?url=http://www.wsj.com&size=70..120..200";
   }
 }
 

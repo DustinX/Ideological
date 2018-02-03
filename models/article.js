@@ -12,7 +12,8 @@ var articleSchema = new mongoose.Schema({
   truthRating: Number,
   biasRatingArr: [Number],
   biasRating: String,
-  totalFeedback: Number
+  totalFeedback: Number,
+  showcase: String
 });
 
 
