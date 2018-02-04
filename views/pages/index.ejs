@@ -69,11 +69,15 @@
               <a href="javascript:void(0);">
                 <div class="articleDataContainer" data-article-uri = "<%= article.url %>" data-article-id="<%= article._id %>">
                   <div class="articleImageContainer">
-                    <% if(article.urlToImage == null) { %>
-                      <img src="http://i.imgur.com/ytQK5qd.png" alt="" class="articleImage">
-                    <% } else { %>
-                      <img src="<%= article.urlToImage %>" alt="" class="articleImage">
-                    <%  } %>
+                      <% if(article.urlToImage == null) { %>
+                        <img src="http://i.imgur.com/ytQK5qd.png" alt="" class="articleImage">
+                      <% } else if(article.urlToImage.includes("bbc")){ %>
+                        <img src="<%= article.urlToImage %>" alt="" class="articleImage">                                              
+                        <div style="width:100px;height:30px; background:black; position:relative; bottom: 42px; margin-left: 5px"></div>
+                      <% } else { %>
+                        <img src="<%= article.urlToImage %>" alt="" class="articleImage">
+                        <div style="width:100px;height:30px; background:black; position:relative; bottom: 42px; margin-left: 5px"></div>
+                      <%  } %>
                   </div>
 
                   <div class="articleDetailsContainer">
