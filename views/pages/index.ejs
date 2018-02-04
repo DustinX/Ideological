@@ -321,7 +321,8 @@
 				//boogle
 			function readDrawImg(canvas, x, y, url){
 					// var img = readImg(reader);
-					var img = new Image(320, 180);
+					// var img = new Image(320, 180);
+					var img = new Image();
 					img.crossOrigin = "Anonymous";
 					img.src = url;
 					img.onload = function(){
@@ -332,6 +333,8 @@
 							printWidthHeight( 'dst-width-height', resize.flag, resize.w, resize.h);
 							drawImgOnCav(canvas, img, x, y, resize.w, resize.h);
 							fastSearch(canvas, resize.w, resize.h);
+							// drawImgOnCav(canvas, img, x, img.height-240, 320, 240, 320);
+							// fastSearch(canvas, resize.w, resize.h);
 					}
 			}
 			// read image
