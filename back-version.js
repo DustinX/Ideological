@@ -20,7 +20,7 @@ Jimp.read("https://www.shoothill.com/wp-content/uploads/2016/03/newbbc2.png", fu
 	headder_str += 'Content-Transfer-Encoding: binary\r\n\r\n';
 
 	// mime footer
-	var footer_str = "--7d45b106-5920-449e-bd9d-4019acd344a2\r\n";
+	var footer_str = "--7d45b106-5920-449e-bd9d-4019acd344a2--\r\n";
 
 	// part #1 data
 	var data = new ArrayBuffer(headder_str.length + 16 + w * h + 2 + footer_str.length);
@@ -57,8 +57,16 @@ Jimp.read("https://www.shoothill.com/wp-content/uploads/2016/03/newbbc2.png", fu
 	for (var i = 0; i < footer_str.length; i++ ) {
 		data_view.setUint8( ptr + i, footer_str.charCodeAt(i) );
 	}
-	/////////////////////////////////////////////////////////
 
+	var options = {
+		hostname: 'https://www3.arche.blue',
+		port: 80,
+		path: '/mvp5/v1/1004/fastSearch',
+		method: 'POST',
+		headers: {
+			'Content-Type': 'multipart/form-data; boundary=--7d45b106-5920-449e-bd9d-4019acd344a2',
+		}
+	};
 	var req = http.request(options, function(res) {
 		console.log('Status: ' + res.statusCode);
 		console.log('Headers: ' + JSON.stringify(res.headers));
@@ -70,7 +78,7 @@ Jimp.read("https://www.shoothill.com/wp-content/uploads/2016/03/newbbc2.png", fu
 	req.on('error', function(e) {
 		console.log('problem with request: ' + e.message);
 	});
-	// write data to request body
+
 	req.write(data);
 	req.end();
 
