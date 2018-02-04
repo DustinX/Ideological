@@ -4,6 +4,7 @@
 //Express
 var express = require('express');
 var app = express();
+var util = require('util');
 
 //async
 var async = require('async');
@@ -226,14 +227,17 @@ Article.find({showcase: "True"}, function(err, showcaseArticles) {
     console.log("Error finding the showcaseArticles for the first load");
     console.log(err);
   } else {
-    Article.find({}, function(err, topArticles) {
+    // var posSet = new Set(showcaseArticles.positives);
+    // var negSet = new Set(showcaseArticles.negatives);
+    console.log(showcaseArticles);
+    Article.find({}).sort({truthRating: 'descending'}).limit(5).exec(function(err, topArticles) {
       if(err) {
         console.log("Can't find top articles");
         console.log(err);
       } else {
         res.render("pages/index", {allData: showcaseArticles,topArticles: topArticles});
       }
-    }).sort('-truthrating').limit(8);
+    })
   }
 })
 
@@ -253,9 +257,26 @@ app.put('/rate/:id', isLoggedIn, function(req, res){
     //get the review data
     var updatedValidity = updatedData.validity;
     var updatedBias = updatedData.bias;
+    var positives = updatedData.positives;
+    var negatives = updatedData.negatives;
+
+    var finalPos;
+    var finalNegs;
+
+    if(util.isArray(positives)) {
+      finalPos = {$each: positives};
+    } else {
+      finalPos = positives;
+    }
+
+    if(util.isArray(negatives)) {
+      finalNegs = {$each: negatives};
+    } else {
+      finalNegs = negatives;
+    }
 
 
-     Article.findByIdAndUpdate(articleId, {$inc: {totalFeedback: 1, truthRating: updatedValidity}, $push: {biasRatingArr: updatedBias}}, function(err, updatedArticleMetrics){
+     Article.findByIdAndUpdate(articleId, {$inc: {totalFeedback: 1, truthRating: updatedValidity}, $push: {biasRatingArr: updatedBias, positives: finalPos, negatives: finalNegs}}, function(err, updatedArticleMetrics){
        if(err) {
          console.log(err);
        } else {

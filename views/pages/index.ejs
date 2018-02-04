@@ -16,7 +16,6 @@
 
                    <div class="trendingArticleDetailsContainer">
                      <h3><%= article.title %></h3>
-                     <h5><%= article.description %></h5>
                    </div>
 
                    <hr class="trendingCardDivider">
@@ -114,7 +113,22 @@
                       </div>
                     </div>
                   </div>
-
+            
+              <div class="positiveTags">
+                <% if(Array.isArray(article.positives)) { %>
+                  <% article.positives.forEach(function(pos) { %>
+                    <a class="tag"><%= pos %></a>
+                  <% }) %>
+                <% } %> 
+              </div>  
+              <div class="positiveTags">
+                  <% if(Array.isArray(article.negatives)) { %>
+                    <% article.negatives.forEach(function(neg) { %>
+                      <a class="tag"><%= neg %></a>
+                    <% }) %>
+                  <% } %> 
+              </div>     
+            
               <div class="rateBtnContainer">
                       <a type="button" class="rateBtn" id="rateFormBtn"  data-article-id="<%= article._id %>" data-article-title="<%= article.title %>" data-totalfb="<%= article.totalFeedback %>" data-truthr="<%= article.truthRating %>" data-biasr="<%= article.biasRatingArr %>" onclick="">Rate Article</a><span class="feedbackCount"><%= article.totalFeedback %></span>
                   </div>
@@ -158,6 +172,49 @@
              <option value="1">Liberal</option>
              <option value="2">Conservative</option>
            </select>
+        </div>
+
+        <div class="rateFormSection">
+          <h4 class="rateSectionHeading">Reason</h4>
+          <div class="positives inLine">
+              <table>
+                  <tr>
+                    <th>Positives</th>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="goodSources" name="positives" value="Good Sources"> <label for="goodSources">Good Sources</label></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="author" name="positives" value="Good Author"> <label for="author">Respectable Author</label></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="evidence" name="positives" value="Compelling Evidence"> <label for="evidence">Compelling Evidence</label></td>
+                  </tr>
+                  <tr>
+                      <td><input type="checkbox" id="other" name="positives" value="Other"> <label for="other">Other</label></td>
+                    </tr>
+                </table>
+          </div>
+
+          <div class="negatives inLine">
+              <table>
+                  <tr>
+                    <th>Negatives</th>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="badSources" name="negatives" value="Unreliable Sources"> <label for="goodSources">Unreliable Sources</label></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="author" name="negatives" value="Disreputable Author"> <label for="author">Disreputable Author</label></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="evidence" name="negatives" value="Poor Evidence"> <label for="evidence">Poor Evidence</label></td>
+                  </tr>
+                  <tr>
+                      <td><input type="checkbox" id="other" name="negatives" value="Other"> <label for="other">Other</label></td>
+                  </tr>
+                </table>
+          </div>
         </div>
 
         <button type="submit" id="reviewSubBtn">Submit</button>
