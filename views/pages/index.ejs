@@ -68,12 +68,12 @@
           <div class="newsCard">
               <a href="javascript:void(0);">
                 <div class="articleDataContainer" data-article-uri = "<%= article.url %>" data-article-id="<%= article._id %>">
-                  <div class="articleImageContainer">
+                  <div class="articleImageContainer" style="position: relative;">
                       <% if(article.urlToImage == null) { %>
                         <img src="http://i.imgur.com/ytQK5qd.png" alt="" class="articleImage">
                       <% } else if(article.urlToImage.includes("bbc")){ %>
                         <img src="<%= article.urlToImage %>" alt="" class="articleImage">                                              
-                        <div style="width:100px;height:30px; background:black; position:relative; bottom: 42px; margin-left: 5px"></div>
+                        <div style="width:100px;height:30px; background:black; position:absolute; left: 0px; bottom: 13px; margin-left: 5px"></div>
                       <% } else { %>
                         <img src="<%= article.urlToImage %>" alt="" class="articleImage">
                         <!-- <div style="width:100px;height:30px; background:black; position:relative; bottom: 42px; margin-left: 5px"></div> -->
