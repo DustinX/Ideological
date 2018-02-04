@@ -123,79 +123,79 @@ app.use(function(req, res, next){
 //*******************************************************************************************************
 //                                        SCHEDULED MONGODB LOAD
 //*******************************************************************************************************
-// every('5s').do(function(){
-//   var sourceNames = ['al-jazeera-english','associated-press','bbc-news','bloomberg','breitbart-news','business-insider','cnn','google-news','independent','techcrunch','the-huffington-post','the-verge','the-new-york-times','time','the-wall-street-journal','the-washington-post','national-geographic','daily-mail'];
-//   var apis = [];
-//   for (var i = 0; i < sourceNames.length; i++) {
-//     apis[i] = " https://newsapi.org/v1/articles?source="+sourceNames[i]+"&apiKey=14748e642d924db294e082aad37b715f"
-//   }
+every('5s').do(function(){
+  var sourceNames = ['al-jazeera-english','associated-press','bbc-news','bloomberg','breitbart-news','business-insider','cnn','google-news','independent','techcrunch','the-huffington-post','the-verge','the-new-york-times','time','the-wall-street-journal','the-washington-post','national-geographic','daily-mail'];
+  var apis = [];
+  for (var i = 0; i < sourceNames.length; i++) {
+    apis[i] = " https://newsapi.org/v1/articles?source="+sourceNames[i]+"&apiKey=14748e642d924db294e082aad37b715f"
+  }
 
-//   async.each(apis, function(api, callback){
-//     request(api, function(error, response, body){
-//       if(error) {
-//         console.log(error);
-//       } else {
-//         var info = JSON.parse(body);
-//         var articleSource = info["source"];
+  async.each(apis, function(api, callback){
+    request(api, function(error, response, body){
+      if(error) {
+        console.log(error);
+      } else {
+        var info = JSON.parse(body);
+        var articleSource = info["source"];
 
-//        info["articles"].forEach(function(article){
+       info["articles"].forEach(function(article){
 
-//             Article.find({"title": article.title}, function(err, foundArticle){
-//               if(err) {
-//                 console.log(err);
-//               }
+            Article.find({"title": article.title}, function(err, foundArticle){
+              if(err) {
+                console.log(err);
+              }
 
-//               if(foundArticle == null) {
-//                 console.log(article.title);
-//                 console.log("found");
-//                 //Don't add he article to the db
-//               } else {
-//                 //Set up vars to be used to create the article object
-//                 var author = article.author;
-//                 var title = article.title;
-//                 var description = article.description;
-//                 var url = article.url;
-//                 var urlToImage = article.urlToImage;
-//                 var publishedAt = article.publishedAt;
-//                 var source = setSourceImage(articleSource);
-//                 var truthRating = 0;
-//                 var biasRatingArr = [];
-//                 var biasRating = "_";
-//                 var totalFeedback = 0;
-//                 var showcase = "False";
+              if(foundArticle == null) {
+                console.log(article.title);
+                console.log("found");
+                //Don't add he article to the db
+              } else {
+                //Set up vars to be used to create the article object
+                var author = article.author;
+ 		        var title = article.title;
+                var description = article.description;
+                var url = detectLogo(article.url);   //boogle
+ 		        var urlToImage = article.urlToImage;
+                var publishedAt = article.publishedAt;
+                var source = setSourceImage(articleSource);
+                var truthRating = 0;
+                var biasRatingArr = [];
+                var biasRating = "_";
+                var totalFeedback = 0;
+                var showcase = "False";
 
-//                 //Create an article object to be passed to the mongoose create api
-//                 var newArticle = {
-//                   author: author,
-//                   title: title,
-//                   description: description,
-//                   url: url,
-//                   urlToImage: urlToImage,
-//                   publishedAt: publishedAt,
-//                   source: source,
-//                   truthRating: truthRating,
-//                   biasRatingArr: biasRatingArr,
-//                   biasRating: biasRating,
-//                   totalFeedback: totalFeedback,
-//                   showcase: showcase
-//                 }
+                //Create an article object to be passed to the mongoose create api
+                var newArticle = {
+                  author: author,
+                  title: title,
+                  description: description,
+                  url: url,
+                  urlToImage: urlToImage,
+                  publishedAt: publishedAt,
+                  source: source,
+                  truthRating: truthRating,
+                  biasRatingArr: biasRatingArr,
+                  biasRating: biasRating,
+                  totalFeedback: totalFeedback,
+                  showcase: showcase
+                }
 
-//                 //Create the article
-//                 Article.create(newArticle, function(err, createdArticle){
-//                    if(err) {
-//                      console.log(err);
-//                    } else {
-//                      console.log(createdArticle);
-//                    }
-//                 });
-//               }
-//             });
-//        });// ends forEach
+                //Create the article
+                Article.create(newArticle, function(err, createdArticle){
+                   if(err) {
+                     console.log(err);
+                   } else {
+                     console.log(createdArticle);
+                   }
+                });
+              }
+            });
+       });// ends forEach
 
-//      }//ends else no error
-//    }); //ends request
-//  }); //ends async call
-// });//ends every call
+     }//ends else no error
+   }); //ends request
+ }); //ends async call
+});//ends every call
 
 
 
@@ -468,3 +468,313 @@ function setBiasMode(foundArticle) {
 app.listen(3030, function(){
   console.log("News Server Is Running!");
 });
+
+
+
+
+//*******************************************************************************************************
+//                                                   API
+//*******************************************************************************************************
+/*
+function detectLogo(imgSource){
+
+	fetch(imgSource)
+	.then(res => res.blob()) // Gets the response and returns it as a blob
+	.then(blob => {
+		// Here's where you get access to the blob
+		// And you can use it for whatever you want
+		// Like calling ref().put(blob)
+
+		// Here, I use it to make an image appear on the page
+		let objectURL = URL.createObjectURL(blob);
+		let myImage = new Image();
+		myImage.src = objectURL;
+
+		return myImage;
+	}).then(myImage =>{
+
+
+		function selectReadfile(myImage) {
+			var reader = new FileReader();
+			reader.readAsDataURL(myImage);
+			reader.onload = function(){
+				readDrawImg(reader, canvas, 0, 0);
+			}
+		}
+
+		
+		// draw image
+		function readDrawImg(reader){
+			var img = readImg(reader);
+			img.onload = function(){
+				var w = img.width;
+				var h = img.height;
+				var resize = resizeWidthHeight(320, w, h);
+				fastSearch(canvas, resize.w, resize.h);
+			}
+		}
+
+		// read image
+		function readImg(reader){
+			var result_dataURL = reader.result;
+			var img = new Image();
+			img.src = result_dataURL;
+			return img;
+		}
+
+		// fast search
+		function fastSearch(canvas, w, h){
+			var context = canvas.getContext("2d");
+			var img_data = context.getImageData(0, 0, w, h);
+			var xhr = new XMLHttpRequest();
+			var boundary = generateUuid();
+			var group_id = document.forms.form1.group_id.value
+			if (group_id == "") group_id = 0;
+			xhr.open("POST" , "https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
+			console.log("https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
+			xhr.onload=function(){
+				if (xhr.readyState === 4) {
+				console.log( xhr.response );
+				if (xhr.status === 200) {
+					var data = JSON.parse(xhr.response);
+					var div = document.getElementById("result1");
+					div.textContent = JSON.stringify(data, null , "\t");
+				} else if (xhr.status === 404) {
+					var div = document.getElementById("result1");
+					div.textContent = "404 The requested URL was not found on the server.\n It may be caused by inncorrect Group ID.\n Please check your Group ID in LOGIN/PROFILE page.";
+				}
+				}
+			};
+			xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary="+boundary);
+
+			// part #1 headder
+			var headder_str = "--" + boundary + "\r\n";
+			headder_str += "Content-Disposition: form-data; name=\"image\"; filename=\"ArcheLiteImage.data\"\r\n";
+			headder_str += "Content-Type: application/octet-stream\r\n";
+			headder_str += "Content-Transfer-Encoding: binary\r\n\r\n";
+
+			// mime footer
+			var footer_str = "--" + boundary + "--\r\n";
+
+			// part #1 data
+			var data = new ArrayBuffer(headder_str.length + 16 + w * h + 2 + footer_str.length);
+			var data_view = new DataView( data );
+			var ptr = 0;
+
+			for (var i = 0; i < headder_str.length; i++ ) {
+				data_view.setUint8( i, headder_str.charCodeAt(i) );
+			}
+			ptr += headder_str.length;
+
+			var mode = 1;
+			var para = 0;
+			var little_endian = true;
+			data_view.setUint32( ptr + 0 , mode , little_endian );
+			data_view.setUint32( ptr + 4 , para , little_endian );
+			data_view.setUint32( ptr + 8 , h , little_endian );
+			data_view.setUint32( ptr + 12 , w , little_endian );
+			ptr += 16;
+
+			for (var y = 0; y < h; y++) {
+				for (var x = 0; x < w; x++) {
+				var i = (y * w + x) * 4;
+				var p = (img_data.data[i] + img_data.data[i+1] + img_data.data[i+2]) /3;
+				data_view.setUint8( ptr + y * w + x , p );
+				}
+			}
+			ptr += w * h;
+
+			data_view.setUint8( ptr , "\r".charCodeAt(0) );
+			data_view.setUint8( ptr + 1 , "\n".charCodeAt(0) );
+			ptr += 2;
+
+			for (var i = 0; i < footer_str.length; i++ ) {
+				data_view.setUint8( ptr + i, footer_str.charCodeAt(i) );
+			}
+
+			xhr.send( data );
+		}
+
+	});
+}
+*/
+
+
+/*
+
+
+  (function() {
+      var canvas = document.getElementById('mycanvas');
+      window.onload = function(){
+        if ( checkFileApi() && checkCanvas(canvas) ){
+          // select file
+          var file_image = document.getElementById('file-image');
+          file_image.addEventListener('change', selectReadfile, false);
+        }
+      }
+      // // check canvas support
+      // function checkCanvas(canvas){
+      //   if (canvas && canvas.getContext){
+      //     return true;
+      //   }
+      //   alert('Not Supported Canvas.');
+      //   return false;
+      // }
+      // // check FileAPI support
+      // function checkFileApi() {
+      //   // Check for the various File API support.
+      //   if (window.File && window.FileReader && window.FileList && window.Blob) {
+      //     // Great success! All the File APIs are supported.
+      //     return true;
+      //   }
+      //   alert('The File APIs are not fully supported in this browser.');
+      //   return false;
+      // }
+      // read file
+      function selectReadfile(e) {
+        var file = e.target.files[0];
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(){
+          readDrawImg(reader, canvas, 0, 0);
+        }
+      }
+
+      // read image
+      function readImg(reader){
+        var result_dataURL = reader.result;
+        var img = new Image();
+        img.src = result_dataURL;
+        return img;
+      }
+      // calc resize
+      function resizeWidthHeight(target_length_px, w0, h0){
+        var length = Math.max(w0, h0);
+        if(length <= target_length_px){
+          return{
+            flag: false,
+            w: w0,
+            h: h0
+          };
+        }
+        var w1;
+        var h1;
+        if(w0 >= h0){
+          w1 = target_length_px;
+          h1 = h0 * target_length_px / w0;
+        }else{
+          w1 = w0 * target_length_px / h0;
+          h1 = target_length_px;
+        }
+        return {
+          flag: true,
+          w: parseInt(w1),
+          h: parseInt(h1)
+        };
+      }
+      // print width and height
+      function printWidthHeight( width_height_id, flag, w, h) {
+        var wh = document.getElementById(width_height_id);
+        if(!flag){
+          wh.innerHTML = "Not Resized";
+          return;
+        }
+        wh.innerHTML = 'width:' + w + ' height:' + h;
+      }
+      // draw image on the canvas
+      function drawImgOnCav(canvas, img, x, y, w, h) {
+        var ctx = canvas.getContext('2d');
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, x, y, w, h);
+      }
+      // fast search
+      function fastSearch(canvas, w, h){
+        var context = canvas.getContext("2d");
+        var img_data = context.getImageData(0, 0, w, h);
+        var xhr = new XMLHttpRequest();
+        var boundary = generateUuid();
+        var group_id = document.forms.form1.group_id.value
+        if (group_id == "") group_id = 0;
+        xhr.open("POST" , "https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
+        console.log("https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
+        xhr.onload=function(){
+          if (xhr.readyState === 4) {
+            console.log( xhr.response );
+            if (xhr.status === 200) {
+              var data = JSON.parse(xhr.response);
+              var div = document.getElementById("result1");
+              div.textContent = JSON.stringify(data, null , "\t");
+            } else if (xhr.status === 404) {
+              var div = document.getElementById("result1");
+              div.textContent = "404 The requested URL was not found on the server.\n It may be caused by inncorrect Group ID.\n Please check your Group ID in LOGIN/PROFILE page.";
+            }
+          }
+        };
+        xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary="+boundary);
+
+        // part #1 headder
+        var headder_str = "--" + boundary + "\r\n";
+        headder_str += "Content-Disposition: form-data; name=\"image\"; filename=\"ArcheLiteImage.data\"\r\n";
+        headder_str += "Content-Type: application/octet-stream\r\n";
+        headder_str += "Content-Transfer-Encoding: binary\r\n\r\n";
+
+        // mime footer
+        var footer_str = "--" + boundary + "--\r\n";
+
+        // part #1 data
+        var data = new ArrayBuffer(headder_str.length + 16 + w * h + 2 + footer_str.length);
+        var data_view = new DataView( data );
+        var ptr = 0;
+
+        for (var i = 0; i < headder_str.length; i++ ) {
+            data_view.setUint8( i, headder_str.charCodeAt(i) );
+        }
+        ptr += headder_str.length;
+
+        var mode = 1;
+        var para = 0;
+        var little_endian = true;
+        data_view.setUint32( ptr + 0 , mode , little_endian );
+        data_view.setUint32( ptr + 4 , para , little_endian );
+        data_view.setUint32( ptr + 8 , h , little_endian );
+        data_view.setUint32( ptr + 12 , w , little_endian );
+        ptr += 16;
+
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            var i = (y * w + x) * 4;
+            var p = (img_data.data[i] + img_data.data[i+1] + img_data.data[i+2]) /3;
+            data_view.setUint8( ptr + y * w + x , p );
+          }
+        }
+        ptr += w * h;
+
+        data_view.setUint8( ptr , "\r".charCodeAt(0) );
+        data_view.setUint8( ptr + 1 , "\n".charCodeAt(0) );
+        ptr += 2;
+
+        for (var i = 0; i < footer_str.length; i++ ) {
+            data_view.setUint8( ptr + i, footer_str.charCodeAt(i) );
+        }
+
+        xhr.send( data );
+      }
+      // get unique strings
+      function generateUuid() {
+        let chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
+        for (let i = 0, len = chars.length; i < len; i++) {
+          switch (chars[i]) {
+            case "x":
+              chars[i] = Math.floor(Math.random() * 16).toString(16);
+              break;
+            case "y":
+              chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16);
+              break;
+          }
+        }
+        return chars.join("");
+      }
+	})();
+	
+	*/
