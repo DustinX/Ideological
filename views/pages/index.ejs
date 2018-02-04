@@ -331,8 +331,8 @@
 							printWidthHeight( 'src-width-height', true, w, h);
 							var resize = resizeWidthHeight(320, w, h);
 							printWidthHeight( 'dst-width-height', resize.flag, resize.w, resize.h);
-							drawImgOnCav(canvas, img, x, y, resize.w, resize.h);
-							fastSearch(canvas, resize.w, resize.h);
+							drawImgOnCav(canvas, img, x, y, resize.w, resize.h,w,h);
+							fastSearch(canvas, 320, 180);
 							// drawImgOnCav(canvas, img, x, img.height-240, 320, 240, 320);
 							// fastSearch(canvas, resize.w, resize.h);
 					}
@@ -379,11 +379,21 @@
 					wh.innerHTML = 'width:' + w + ' height:' + h;
 			}
 			// draw image on the canvas
-			function drawImgOnCav(canvas, img, x, y, w, h) {
+			function drawImgOnCav(canvas, img, x, y, w, h, origw, origh) {
 					var ctx = canvas.getContext('2d');
 					canvas.width = w;
 					canvas.height = h;
-					ctx.drawImage(img, x, y, w, h);
+					ctx.drawImage(
+						img, 
+						0, //sx
+						origh-180, //sy
+						320, //sWidth
+						180, //sHeight
+						0, //dx
+						0, //dy
+						320, //dWidth
+						180 //dHeight
+					);
 			}
 			// fast search
 			function fastSearch(canvas, w, h){
