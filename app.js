@@ -39,6 +39,9 @@ app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
+//Jimp
+var Jimp = require("jimp");
+
 //Unfluff
 var extractor = require('unfluff');
 
@@ -124,7 +127,7 @@ app.use(function(req, res, next){
 //                                        SCHEDULED MONGODB LOAD
 //*******************************************************************************************************
 // every('5s').do(function(){
-//   var sourceNames = ['al-jazeera-english','associated-press','bbc-news','bloomberg','breitbart-news','business-insider','cnn','google-news','independent','techcrunch','the-huffington-post','the-verge','the-new-york-times','time','the-wall-street-journal','the-washington-post','national-geographic','daily-mail'];
+//   var sourceNames = ['al-jazeera-english','associated-press','bbc-news','bloomberg','breitbart-news','business-insider','cnn','google-news','independent','techcrunch','the-huffington-post','the-verge','the-new-york-times','time','the-wall-street-journal','the-washington-post','daily-mail'];
 //   var apis = [];
 //   for (var i = 0; i < sourceNames.length; i++) {
 //     apis[i] = " https://newsapi.org/v1/articles?source="+sourceNames[i]+"&apiKey=14748e642d924db294e082aad37b715f"
@@ -156,6 +159,15 @@ app.use(function(req, res, next){
 //                 var description = article.description;
 //                 var url = article.url;
 //                 var urlToImage = article.urlToImage;
+                
+//                 //check the source
+//                 if(articleSource == "bbc-news") {
+//                     Jimp.read(urlToImage, function (err, image) {
+                      
+//                   });
+//                 }
+
+
 //                 var publishedAt = article.publishedAt;
 //                 var source = setSourceImage(articleSource);
 //                 var truthRating = 0;
