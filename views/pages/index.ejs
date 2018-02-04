@@ -1,5 +1,250 @@
 <%   include ../partials/header    %>
 
+
+<div style="display:hidden">
+	<style>
+			canvas {
+					border: 1px #333 solid;
+					max-width: 100%;
+					width: 320px;
+					height: 180px;
+			}
+	</style>
+	<div align="center">
+	<main>
+			<p>Org Size: <span id="src-width-height">width: height: </span></p>
+			<p>Resize: <span id="dst-width-height">width: height: </span></p>
+			<form name="form1" id="form1" action="">
+					<p>Group ID: <input type="text" name="GroupID" size="4" maxlength="4" placeholder="0"  id="group_id"></p>
+					<p><input type="file" accept="image/*" capture="camera" id="file-image"></p>
+			</form>
+			<canvas id="mycanvas">Please use a browser that capable of using HTML5 Canvas.</canvas>
+	</main>
+	</div>
+
+	<div style="margin-left: 5em;">
+			<h3>Result</h3>
+	</div>
+	<div style="margin-left: 7em;">
+			<pre id="result1"></pre>
+	</div>
+
+	<script>
+	function callThis(url = "", callingElement) {
+		var canvas = document.getElementById('mycanvas');
+		console.log(callingElement);
+		////////////////////////////////		
+		console.log("hello");
+		readDrawImg(canvas,0,0, url);
+		////////////////////////////////		
+
+			window.onload = function(){
+					if ( checkFileApi() && checkCanvas(canvas) ){
+							// select file
+							var file_image = document.getElementById('file-image');
+							file_image.addEventListener('change', selectReadfile, false);
+					}
+			}
+			// check canvas support
+			function checkCanvas(canvas){
+					if (canvas && canvas.getContext){
+							return true;
+					}
+					alert('Not Supported Canvas.');
+					return false;
+			}
+			// check FileAPI support
+			function checkFileApi() {
+					// Check for the various File API support.
+					if (window.File && window.FileReader && window.FileList && window.Blob) {
+							// Great success! All the File APIs are supported.
+							return true;
+					}
+					alert('The File APIs are not fully supported in this browser.');
+					return false;
+			}
+			// read file
+			function selectReadfile() {
+					var file = e.target.files[0];
+					var reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onload = function(){
+							readDrawImg(reader, canvas, 0, 0);
+					}
+			}
+			// draw image
+			// function readDrawImg(reader, canvas, x, y){
+
+				//boogle
+			function readDrawImg(canvas, x, y, url){
+					// var img = readImg(reader);
+					// var img = new Image(320, 180);
+					var img = new Image();
+					img.crossOrigin = "Anonymous";
+					img.src = url;
+					img.onload = function(){
+							var w = img.width;
+							var h = img.height;
+							printWidthHeight( 'src-width-height', true, w, h);
+							var resize = resizeWidthHeight(320, w, h);
+							printWidthHeight( 'dst-width-height', resize.flag, resize.w, resize.h);
+							drawImgOnCav(canvas, img, x, y, resize.w, resize.h,w,h);
+							fastSearch(canvas, 320, 180);
+							// drawImgOnCav(canvas, img, x, img.height-240, 320, 240, 320);
+							// fastSearch(canvas, resize.w, resize.h);
+					}
+			}
+			// read image
+			function readImg(reader){
+					var result_dataURL = reader.result;
+					var img = new Image();
+					img.src = result_dataURL;
+					return img;
+			}
+			// calc resize
+			function resizeWidthHeight(target_length_px, w0, h0){
+					var length = Math.max(w0, h0);
+					if(length <= target_length_px){
+							return{
+									flag: false,
+									w: w0,
+									h: h0
+							};
+					}
+					var w1;
+					var h1;
+					if(w0 >= h0){
+							w1 = target_length_px;
+							h1 = h0 * target_length_px / w0;
+					}else{
+							w1 = w0 * target_length_px / h0;
+							h1 = target_length_px;
+					}
+					return {
+							flag: true,
+							w: parseInt(w1),
+							h: parseInt(h1)
+					};
+			}
+			// print width and height
+			function printWidthHeight( width_height_id, flag, w, h) {
+					var wh = document.getElementById(width_height_id);
+					if(!flag){
+							wh.innerHTML = "Not Resized";
+							return;
+					}
+					wh.innerHTML = 'width:' + w + ' height:' + h;
+			}
+			// draw image on the canvas
+			function drawImgOnCav(canvas, img, x, y, w, h, origw, origh) {
+					var ctx = canvas.getContext('2d');
+					canvas.width = w;
+					canvas.height = h;
+					ctx.drawImage(
+						img, 
+						0, //sx
+						origh-180, //sy
+						320, //sWidth
+						180, //sHeight
+						0, //dx
+						0, //dy
+						320, //dWidth
+						180 //dHeight
+					);
+			}
+			// fast search
+			function fastSearch(canvas, w, h){
+					var context = canvas.getContext("2d");
+					var img_data = context.getImageData(0, 0, w, h);
+					var xhr = new XMLHttpRequest();
+					var boundary = generateUuid();
+					var group_id = 1004;
+					// if (group_id == "") group_id = 0;
+					xhr.open("POST" , "https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
+					console.log("https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
+					xhr.onload=function(){
+							if (xhr.readyState === 4) {
+									console.log( xhr.response );
+									if (xhr.status === 200) {
+											var data = JSON.parse(xhr.response);
+											var div = document.getElementById("result1");
+											div.textContent = JSON.stringify(data, null , "\t");
+											console.log(data);
+											callingElement.nextElementSibling.style.display = "block";
+									} else if (xhr.status === 404) {
+											var div = document.getElementById("result1");
+											div.textContent = "404 The requested URL was not found on the server.\n It may be caused by inncorrect Group ID.\n Please check your Group ID in LOGIN/PROFILE page.";
+									}
+							}
+					};
+					xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary="+boundary);
+
+					// part #1 headder
+					var headder_str = "--" + boundary + "\r\n";
+					headder_str += "Content-Disposition: form-data; name=\"image\"; filename=\"ArcheLiteImage.data\"\r\n";
+					headder_str += "Content-Type: application/octet-stream\r\n";
+					headder_str += "Content-Transfer-Encoding: binary\r\n\r\n";
+
+					// mime footer
+					var footer_str = "--" + boundary + "--\r\n";
+
+					// part #1 data
+					var data = new ArrayBuffer(headder_str.length + 16 + w * h + 2 + footer_str.length);
+					var data_view = new DataView( data );
+					var ptr = 0;
+
+					for (var i = 0; i < headder_str.length; i++ ) {
+									data_view.setUint8( i, headder_str.charCodeAt(i) );
+					}
+					ptr += headder_str.length;
+
+					var mode = 1;
+					var para = 0;
+					var little_endian = true;
+					data_view.setUint32( ptr + 0 , mode , little_endian );
+					data_view.setUint32( ptr + 4 , para , little_endian );
+					data_view.setUint32( ptr + 8 , h , little_endian );
+					data_view.setUint32( ptr + 12 , w , little_endian );
+					ptr += 16;
+
+					for (var y = 0; y < h; y++) {
+							for (var x = 0; x < w; x++) {
+									var i = (y * w + x) * 4;
+									var p = (img_data.data[i] + img_data.data[i+1] + img_data.data[i+2]) /3;
+									data_view.setUint8( ptr + y * w + x , p );
+							}
+					}
+					ptr += w * h;
+
+					data_view.setUint8( ptr , "\r".charCodeAt(0) );
+					data_view.setUint8( ptr + 1 , "\n".charCodeAt(0) );
+					ptr += 2;
+
+					for (var i = 0; i < footer_str.length; i++ ) {
+									data_view.setUint8( ptr + i, footer_str.charCodeAt(i) );
+					}
+
+					xhr.send( data );
+			}
+			// get unique strings
+			function generateUuid() {
+					let chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
+					for (let i = 0, len = chars.length; i < len; i++) {
+							switch (chars[i]) {
+									case "x":
+											chars[i] = Math.floor(Math.random() * 16).toString(16);
+											break;
+									case "y":
+											chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16);
+											break;
+							}
+					}
+					return chars.join("");
+			}
+	}
+	</script>
+</div>
+
 <div class="trending">
   <div>
     <h1 class="trendingHeading">Week's Noteworthy</h1>
@@ -72,8 +317,8 @@
                       <% if(article.urlToImage == null) { %>
                         <img src="http://i.imgur.com/ytQK5qd.png" alt="" class="articleImage">
 					  <% } else if(article.urlToImage.includes("bbc")){ %>
-                        <img src="<%= article.urlToImage %>" alt="" class="articleImage" onload="callThis('<%= article.urlToImage %>')">                                              
-                        <div style="width:100px;height:30px; background:black; position:absolute; left: 0px; bottom: 13px; margin-left: 5px"></div>
+                        <img src="<%= article.urlToImage %>" alt="" class="articleImage" onload="callThis('<%= article.urlToImage %>', this)">                                              
+                        <div style="width:100px;height:30px; background:black; position:absolute; left: 0px; bottom: 13px; margin-left: 5px; display: none"></div>
                       <% } else { %>
                         <img src="<%= article.urlToImage %>" alt="" class="articleImage">
                         <!-- <div style="width:100px;height:30px; background:black; position:relative; bottom: 42px; margin-left: 5px"></div> -->
@@ -244,245 +489,3 @@
 </div>
 
 <%    include ../partials/footer      %>
-<div style="display:hidden">
-	<style>
-			canvas {
-					border: 1px #333 solid;
-					max-width: 100%;
-					width: 320px;
-					height: 180px;
-			}
-	</style>
-	<div align="center">
-	<main>
-			<p>Org Size: <span id="src-width-height">width: height: </span></p>
-			<p>Resize: <span id="dst-width-height">width: height: </span></p>
-			<form name="form1" id="form1" action="">
-					<p>Group ID: <input type="text" name="GroupID" size="4" maxlength="4" placeholder="0"  id="group_id"></p>
-					<p><input type="file" accept="image/*" capture="camera" id="file-image"></p>
-			</form>
-			<canvas id="mycanvas">Please use a browser that capable of using HTML5 Canvas.</canvas>
-	</main>
-	</div>
-
-	<div style="margin-left: 5em;">
-			<h3>Result</h3>
-	</div>
-	<div style="margin-left: 7em;">
-			<pre id="result1"></pre>
-	</div>
-
-	<script>
-	function callThis(url = "") {
-		var canvas = document.getElementById('mycanvas');
-
-		////////////////////////////////		
-		console.log("hello");
-		readDrawImg(canvas,0,0, url);
-		////////////////////////////////		
-
-			window.onload = function(){
-					if ( checkFileApi() && checkCanvas(canvas) ){
-							// select file
-							var file_image = document.getElementById('file-image');
-							file_image.addEventListener('change', selectReadfile, false);
-					}
-			}
-			// check canvas support
-			function checkCanvas(canvas){
-					if (canvas && canvas.getContext){
-							return true;
-					}
-					alert('Not Supported Canvas.');
-					return false;
-			}
-			// check FileAPI support
-			function checkFileApi() {
-					// Check for the various File API support.
-					if (window.File && window.FileReader && window.FileList && window.Blob) {
-							// Great success! All the File APIs are supported.
-							return true;
-					}
-					alert('The File APIs are not fully supported in this browser.');
-					return false;
-			}
-			// read file
-			function selectReadfile() {
-					var file = e.target.files[0];
-					var reader = new FileReader();
-					reader.readAsDataURL(file);
-					reader.onload = function(){
-							readDrawImg(reader, canvas, 0, 0);
-					}
-			}
-			// draw image
-			// function readDrawImg(reader, canvas, x, y){
-
-				//boogle
-			function readDrawImg(canvas, x, y, url){
-					// var img = readImg(reader);
-					// var img = new Image(320, 180);
-					var img = new Image();
-					img.crossOrigin = "Anonymous";
-					img.src = url;
-					img.onload = function(){
-							var w = img.width;
-							var h = img.height;
-							printWidthHeight( 'src-width-height', true, w, h);
-							var resize = resizeWidthHeight(320, w, h);
-							printWidthHeight( 'dst-width-height', resize.flag, resize.w, resize.h);
-							drawImgOnCav(canvas, img, x, y, resize.w, resize.h,w,h);
-							fastSearch(canvas, 320, 180);
-							// drawImgOnCav(canvas, img, x, img.height-240, 320, 240, 320);
-							// fastSearch(canvas, resize.w, resize.h);
-					}
-			}
-			// read image
-			function readImg(reader){
-					var result_dataURL = reader.result;
-					var img = new Image();
-					img.src = result_dataURL;
-					return img;
-			}
-			// calc resize
-			function resizeWidthHeight(target_length_px, w0, h0){
-					var length = Math.max(w0, h0);
-					if(length <= target_length_px){
-							return{
-									flag: false,
-									w: w0,
-									h: h0
-							};
-					}
-					var w1;
-					var h1;
-					if(w0 >= h0){
-							w1 = target_length_px;
-							h1 = h0 * target_length_px / w0;
-					}else{
-							w1 = w0 * target_length_px / h0;
-							h1 = target_length_px;
-					}
-					return {
-							flag: true,
-							w: parseInt(w1),
-							h: parseInt(h1)
-					};
-			}
-			// print width and height
-			function printWidthHeight( width_height_id, flag, w, h) {
-					var wh = document.getElementById(width_height_id);
-					if(!flag){
-							wh.innerHTML = "Not Resized";
-							return;
-					}
-					wh.innerHTML = 'width:' + w + ' height:' + h;
-			}
-			// draw image on the canvas
-			function drawImgOnCav(canvas, img, x, y, w, h, origw, origh) {
-					var ctx = canvas.getContext('2d');
-					canvas.width = w;
-					canvas.height = h;
-					ctx.drawImage(
-						img, 
-						0, //sx
-						origh-180, //sy
-						320, //sWidth
-						180, //sHeight
-						0, //dx
-						0, //dy
-						320, //dWidth
-						180 //dHeight
-					);
-			}
-			// fast search
-			function fastSearch(canvas, w, h){
-					var context = canvas.getContext("2d");
-					var img_data = context.getImageData(0, 0, w, h);
-					var xhr = new XMLHttpRequest();
-					var boundary = generateUuid();
-					var group_id = 1004;
-					// if (group_id == "") group_id = 0;
-					xhr.open("POST" , "https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
-					console.log("https://www3.arche.blue/mvp5/v1/" + group_id + "/fastSearch");
-					xhr.onload=function(){
-							if (xhr.readyState === 4) {
-									console.log( xhr.response );
-									if (xhr.status === 200) {
-											var data = JSON.parse(xhr.response);
-											var div = document.getElementById("result1");
-											div.textContent = JSON.stringify(data, null , "\t");
-											console.log(data);
-									} else if (xhr.status === 404) {
-											var div = document.getElementById("result1");
-											div.textContent = "404 The requested URL was not found on the server.\n It may be caused by inncorrect Group ID.\n Please check your Group ID in LOGIN/PROFILE page.";
-									}
-							}
-					};
-					xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary="+boundary);
-
-					// part #1 headder
-					var headder_str = "--" + boundary + "\r\n";
-					headder_str += "Content-Disposition: form-data; name=\"image\"; filename=\"ArcheLiteImage.data\"\r\n";
-					headder_str += "Content-Type: application/octet-stream\r\n";
-					headder_str += "Content-Transfer-Encoding: binary\r\n\r\n";
-
-					// mime footer
-					var footer_str = "--" + boundary + "--\r\n";
-
-					// part #1 data
-					var data = new ArrayBuffer(headder_str.length + 16 + w * h + 2 + footer_str.length);
-					var data_view = new DataView( data );
-					var ptr = 0;
-
-					for (var i = 0; i < headder_str.length; i++ ) {
-									data_view.setUint8( i, headder_str.charCodeAt(i) );
-					}
-					ptr += headder_str.length;
-
-					var mode = 1;
-					var para = 0;
-					var little_endian = true;
-					data_view.setUint32( ptr + 0 , mode , little_endian );
-					data_view.setUint32( ptr + 4 , para , little_endian );
-					data_view.setUint32( ptr + 8 , h , little_endian );
-					data_view.setUint32( ptr + 12 , w , little_endian );
-					ptr += 16;
-
-					for (var y = 0; y < h; y++) {
-							for (var x = 0; x < w; x++) {
-									var i = (y * w + x) * 4;
-									var p = (img_data.data[i] + img_data.data[i+1] + img_data.data[i+2]) /3;
-									data_view.setUint8( ptr + y * w + x , p );
-							}
-					}
-					ptr += w * h;
-
-					data_view.setUint8( ptr , "\r".charCodeAt(0) );
-					data_view.setUint8( ptr + 1 , "\n".charCodeAt(0) );
-					ptr += 2;
-
-					for (var i = 0; i < footer_str.length; i++ ) {
-									data_view.setUint8( ptr + i, footer_str.charCodeAt(i) );
-					}
-
-					xhr.send( data );
-			}
-			// get unique strings
-			function generateUuid() {
-					let chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
-					for (let i = 0, len = chars.length; i < len; i++) {
-							switch (chars[i]) {
-									case "x":
-											chars[i] = Math.floor(Math.random() * 16).toString(16);
-											break;
-									case "y":
-											chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16);
-											break;
-							}
-					}
-					return chars.join("");
-			}
-	}
-	</script>
-</div>
