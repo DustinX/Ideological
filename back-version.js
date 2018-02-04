@@ -1,9 +1,8 @@
 var Jimp = require("jimp");
-var fs = require('fs');
 var http = require("http");
 
 
-var matched = false;
+// var matched = false;
 var w = 320;
 var h = 240;
 var origh = 576;
@@ -61,18 +60,18 @@ Jimp.read("https://www.shoothill.com/wp-content/uploads/2016/03/newbbc2.png", fu
 	/////////////////////////////////////////////////////////
 
 	var req = http.request(options, function(res) {
-	console.log('Status: ' + res.statusCode);
-	console.log('Headers: ' + JSON.stringify(res.headers));
-	res.setEncoding('utf8');
-	res.on('data', function (body) {
-		console.log('Body: ' + body);
-	});
+		console.log('Status: ' + res.statusCode);
+		console.log('Headers: ' + JSON.stringify(res.headers));
+		res.setEncoding('utf8');
+		res.on('data', function (body) {
+			console.log('Body: ' + body);
+		});
 	});
 	req.on('error', function(e) {
-	console.log('problem with request: ' + e.message);
+		console.log('problem with request: ' + e.message);
 	});
 	// write data to request body
-	req.write();
+	req.write(data);
 	req.end();
 
 });
